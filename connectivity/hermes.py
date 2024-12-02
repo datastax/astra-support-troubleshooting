@@ -204,7 +204,7 @@ def testPL(records):
         addreport("No PrivateLink detected")
         return False
     else:
-        # It's extremely difficult to run into this issue, but it's completely user-error.
+        # It's extremely difficult to run into this issue, but it's entirely user-error.
         addreport("Error: Some IPs are PrivateLink, some are not")
         return False
     
