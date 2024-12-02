@@ -223,7 +223,7 @@ def testAuth():
     if rez:
         if args.debug:
             try:
-                addreport(f"Request read latency: {round(row.get_query_trace().duration.total_seconds() * 1000, 2)} ms")
+                addreport(f"Request read latency: {round(row.get_query_trace(max_wait_sec=10).duration.total_seconds() * 1000, 2)} ms")
             except:
                 addreport("Error: Could not retrieve request latency")
         addreport("Authentication successful")
