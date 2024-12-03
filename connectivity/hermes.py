@@ -2,6 +2,7 @@
 import os
 from cassandra.cluster import Cluster
 from cassandra.auth import PlainTextAuthProvider
+import cassandra.query
 import zipfile
 import json
 import dns.resolver
@@ -213,24 +214,35 @@ def testAuth():
     addreport("Testing authentication")
     try:
         session = Cluster(connect_timeout = 2, cloud={"secure_connect_bundle": scb}, auth_provider=PlainTextAuthProvider("token", token),).connect()
-        row = session.execute("select release_version from system.local", trace=True)
+        start_time = time.time()
+        result = session.execute(query="select release_version from system.local", trace=True)
+        end_time = time.time()
+        request_duration_in_ms = (end_time - start_time) * 1000
+        if args.debug:
+            addreport(f"Client-side request response time: {request_duration_in_ms:.3f} ms")
+            try:
+                query_trace = result.get_query_trace(max_wait_sec=2)
+                if query_trace is not None:
+                    addreport(f"Coordinator query execution duration: {round(query_trace.duration.total_seconds() * 1000, 2)} ms")
+                else:
+                    addreport("Error: Could not retrieve coordinator query execution duration (query trace unavailable)")
+            except cassandra.query.TraceUnavailable:
+                addreport("Error: Could not retrieve coordinator query execution duration (query trace unavailable)")
+        
+
+        row = result.one()
+        if row:
+            addreport("Authentication successful")
+            return True
+        else:
+            addreport("Authentication failed. Please check your credentials and/or Secure Connect Bundle.")
+            return False
     except Exception as e:
         addreport("Authentication failed. Error:", e)
         return False
     finally:
         session.shutdown()
-    rez = row.one()
-    if rez:
-        if args.debug:
-            try:
-                addreport(f"Request read latency: {round(row.get_query_trace(max_wait_sec=10).duration.total_seconds() * 1000, 2)} ms")
-            except:
-                addreport("Error: Could not retrieve request latency")
-        addreport("Authentication successful")
-        return False
-    else:
-        addreport("Authentication failed. Please check your credentials and/or Secure Connect Bundle.")
-        return False
+    
 
 ## End tests ##
     
