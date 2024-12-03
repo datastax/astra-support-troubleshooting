@@ -196,9 +196,9 @@ def testPL(records):
             pl[ip] = False
     count = 0
     for val in pl:
-        if val == True:
+        if pl[val] == True:
             count += 1
-    if count == pl.__len__():
+    if count == len(pl):
         addreport("PrivateLink detected")
         return True
     elif count == 0:
