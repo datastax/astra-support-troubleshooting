@@ -10,4 +10,4 @@ This project contains collections of scripts for use in troubleshooting Astra,
 ## Usage
 
 ## Scripts
-- Hermes: This tool is used to test connections to Astra. Prints connection information and can be used to validate if the connection is via PrivateLink or not.
+- [Hermes](connectivity/README.md): This tool is used to test connections to Astra. Prints connection information and can be used to validate if the connection is via PrivateLink or not.
